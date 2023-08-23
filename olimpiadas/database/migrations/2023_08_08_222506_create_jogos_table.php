@@ -20,7 +20,8 @@ return new class extends Migration
             $table->foreignId('adversario')->nullable()->constrained('times');
             $table->char('resultadoCasa')->nullable();
             $table->char('resultadoAdversario')->nullable();
-            $table->string('placar',20)->nullable();
+            $table->unsignedTinyInteger('placarCasa')->nullable();
+            $table->unsignedTinyInteger('placarAdversario')->nullable();
         });
     }
 

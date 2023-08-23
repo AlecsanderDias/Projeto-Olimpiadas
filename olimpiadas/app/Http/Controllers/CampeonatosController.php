@@ -3,19 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CampeonatosFormRequest;
 use App\Models\Campeonato;
 use App\Models\Equipe;
 use App\Models\Especialidade;
 use App\Models\Modalidade;
 use App\Models\Time;
 use App\Models\Tipo;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CampeonatosController extends Controller
 {
+    public function __construct() {
+        $this->middleware('autenticador:editor')->except('index');
+    }
+
     public function index() {
         $campeonatos = Campeonato::all();
-        return view('campeonatos.index')->with(['campeonatos' => $campeonatos]);
+        isset(Auth::user()->nivelAcesso) ? $nivelAcesso = Auth::user()->nivelAcesso : $nivelAcesso = 0;
+        return view('campeonatos.index')->with(['campeonatos' => $campeonatos, 'nivel' => $nivelAcesso]);
     }
 
     public function create() {
@@ -28,7 +34,8 @@ class CampeonatosController extends Controller
         return view('campeonatos.create')->with(['tipos' => $tipos, 'modalidades' => $modalidades, 'especialidades' => $especialidades, 'maximoTimes' => $maximoTimes, 'equipes' => $equipes, 'arrayEquipes' => $arrayEquipes]);
     }
 
-    public function store(Request $request) {
+    public function store(CampeonatosFormRequest $request) {
+        
         $arrayEquipes = explode(',',$request->listaEquipes);
         $idEquipes = [];
         $times = [];
@@ -51,6 +58,7 @@ class CampeonatosController extends Controller
     }
 
     public function destroy(Campeonato $campeonato) {
+        $campeonato->jogos()->delete();
         $campeonato->delete();
         return to_route('campeonatos.index')->with(['mensagem.sucesso' => "Campeonato ($campeonato->nome) foi deletado(a) com sucesso!"]);
     }
@@ -58,9 +66,8 @@ class CampeonatosController extends Controller
     public function show(Campeonato $campeonato) {
         $equipes = $campeonato->equipes()->select('id','nome')->get();
         $times = $campeonato->times()->select('id','nome')->get();
-        // dd($equipes, $times);
-        // $times = criarArrayTimesSeparados($times, $campeonato->timesPorEquipe, $equipes);
+        $jogos = $campeonato->jogos()->select('id')->get();
         // dd($resultado);
-        return view('campeonatos.show')->with(['campeonato' => $campeonato, 'equipes' => $equipes, 'times' => $times]);
+        return view('campeonatos.show')->with(['campeonato' => $campeonato, 'equipes' => $equipes, 'times' => $times, 'jogos' => $jogos]);
     }
 }

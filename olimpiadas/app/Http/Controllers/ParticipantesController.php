@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ParticipantesFormRequest;
 use App\Models\Equipe;
 use App\Models\Participante;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class ParticipantesController extends Controller
         return view('participantes.create')->with(['equipes' => $equipes]);
     }
 
-    public function store(Request $request) {
+    public function store(ParticipantesFormRequest $request) {
         Participante::create($request->all());
         return to_route('participantes.index')->with(['mensagem.sucesso' => "Participante ($request->nome) foi adiconado(a) com sucesso!"]);
     }
@@ -29,7 +30,7 @@ class ParticipantesController extends Controller
         return view('participantes.edit')->with(['equipes' => $equipes, 'participante' => $participante]);
     }
 
-    public function update(Participante $participante, Request $request) {
+    public function update(Participante $participante, ParticipantesFormRequest $request) {
         $participante->fill($request->all())->save();
         return to_route('participantes.index')->with(['mensagem.sucesso' => "Participante ($participante->nome) foi atualizado(a) com sucesso!"]);
     }

@@ -31,7 +31,8 @@
         <label for="listaEquipes" class="form-label">Lista de Equipes:</label>
         <div class="form-control form-control-lg" id="listagem">
         </div>
-        <input id="listaEquipes" name="listaEquipes" class="form-control"/>
+        <input id="listaEquipes" name="listaEquipes" class="form-control" hidden/>
+        <input type="number" id="quantidadeEquipes" name="quantidadeEquipes" class="form-control" hidden>
         <select id="listaDeEquipes" name="listaDeEquipes" class="form-select" onchange="adicionarElemento(this)">
         </select>
 
@@ -41,6 +42,7 @@
         var arrayEquipesOriginal = {{ Js::from($equipes) }};
         var arrayEquipesSelecionadas = [];
         var lista = document.getElementById("listaDeEquipes");
+        var quantidadeEquipes = document.getElementById('quantidadeEquipes');
         atualizarListaEquipes("listaDeEquipes");
 
         // Cria a lista de opções de equipes
@@ -50,7 +52,8 @@
             criarElementoLista(idElemento, "Selecione uma equipe...", "0");
             arrayEquipesOriginal.forEach(equipe => {
                 criarElementoLista(idElemento, equipe.nome, equipe.id);
-            });;
+            });
+            quantidadeEquipes.value = arrayEquipesSelecionadas.length;
         }
 
         // Criação da opção na lista de opções
@@ -97,7 +100,7 @@
         function atualizarResultado(array) {
             array = array.map(item => JSON.stringify(item).replace(',','-'));
             // array = array.map(item => item.id);
-            console.log("Array selecionada => ", array);
+            // console.log("Array selecionada => ", array);
             let lista = document.getElementById("listaEquipes");
             lista.value = array.toString();
         }

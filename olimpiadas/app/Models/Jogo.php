@@ -9,5 +9,5 @@ class Jogo extends Model
 {
     use HasFactory;
     public $timestamps = false;
-
+    protected $fillable = ['data', 'casa', 'adversario', 'resultadoCasa', 'resultadoAdversario','placarCasa','placarAdversario'];
 }
