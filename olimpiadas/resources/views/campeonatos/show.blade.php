@@ -19,11 +19,13 @@
                         <li>
                             <p> {{ $time->nome }}</p>
                             <a href="{{ route('campeonatos.times.edit', ['campeonato' => $campeonato->id,'time' => $time->id] ) }}" class="btn btn-primary">Editar Equipe</a>
-                            <form action="{{ route('campeonatos.times.destroy', ['campeonato' => $campeonato->id, 'time' => $time->id]) }}" method="post">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger">Excluir Equipe</button>
-                            </form>
+                            @if(!$jogos->first())
+                                <form action="{{ route('campeonatos.times.destroy', ['campeonato' => $campeonato->id, 'time' => $time->id]) }}" method="post">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-danger">Excluir Equipe</button>
+                                </form>
+                            @endif
                         </li>
                         @php($criar = true)
                         @break
@@ -44,7 +46,10 @@
         </li>
         @endforeach
     </ul>
-    <a href="{{ route('campeonatos.jogos.create', $campeonato->id) }}" class="btn btn-primary">Criar Jogos</a>
-    <a href="{{ route('campeonatos.jogos.index', ['campeonato' => $campeonato->id]) }}" class="btn btn-primary">Visualizar Jogos</a>
+    @if($jogos->first())
+        <a href="{{ route('campeonatos.jogos.index', ['campeonato' => $campeonato->id]) }}" class="btn btn-primary">Visualizar Jogos</a>
+    @else
+        <a href="{{ route('campeonatos.jogos.create', $campeonato->id) }}" class="btn btn-primary">Criar Jogos</a>
+    @endif
     <a href="{{ route('campeonatos.index') }}" class="btn btn-primary">Voltar</a>
 </x-layout>

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Equipe;
 use App\Models\Modalidade;
 use App\Models\Tipo;
 use App\Models\Especialidade;
@@ -42,5 +43,14 @@ class DatabaseSeeder extends Seeder
         Especialidade::create(['nome' => 'Misto']);
         Especialidade::create(['nome' => 'Individual']);
         Especialidade::create(['nome' => 'Dupla']);
+        Equipe::create(['nome' => 'Red']);
+        Equipe::create(['nome' => 'Gray']);
+        Equipe::create(['nome' => 'Purple']);
+        Equipe::create(['nome' => 'Green']);
+        Equipe::create(['nome' => 'White']);
+        Equipe::create(['nome' => 'Black']);
+        Equipe::create(['nome' => 'Yellow']);
+        Equipe::create(['nome' => 'Blue']);
+        Equipe::create(['nome' => 'Orange']);
     }
 }

@@ -18,7 +18,7 @@
         @if($campeonato->tipo_id > 2)
             <label for="timesClassificados" class="form-label">Quantidade de Times para Eliminatórias:</label>
             <select id="timesClassificados" name="timesClassificados" class="form-select">
-                @for ($i = 1; $i <= count($times); $i++)
+                @for ($i = 2; $i <= count($times); $i++)
                 <option value="{{ $i }}">{{ $i }}</option>
                 @endfor
             </select>

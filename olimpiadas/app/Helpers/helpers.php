@@ -1,4 +1,7 @@
 <?php
+
+use function PHPUnit\Framework\isNull;
+
 if (!function_exists('resultadoParticipantes')) {
     function resultadoParticipantes($participantesDoTime, $participantesDaEquipe)
     {
@@ -45,31 +48,6 @@ if (!function_exists('filtrarParticipantes')) {
     }
 }
 
-if (!function_exists('criarArrayTimesSeparados')) {
-    function criarArrayTimesSeparados($arrayTodosTimes, $quantidadePorEquipe, $listaTodasEquipes)
-    {
-        $todosTimes = [];
-        // dd($arrayTodosTimes, $quantidadePorEquipe);
-        foreach ($listaTodasEquipes as $equipe) {
-            $times = [];
-            foreach ($arrayTodosTimes as $time) {
-                for ($i = 1; $i <= $quantidadePorEquipe; $i++) {
-                    $nomeTime = "$equipe->nome $i";
-                    // dd($equipe->nome ,$arrayTodosTimes->nome);
-                    if ($time->nome == $nomeTime) {
-                        // dd("Funcionou");
-                        $times[] = $time;
-                    } else $times[] = null;
-                }
-            }
-            $todosTimes[] = [
-                "$equipe->nome" => $times,
-            ];
-        }
-        // dd("Fim da função", $todosTimes, $arrayTodosTimes, $listaTodasEquipes);
-        return $todosTimes;
-    }
-}
 
 if (!function_exists('criarArrayPartidas')) {
     function criarArrayPartidas($campeonatoId, $quantidadeTimes, $quantidadeClassificados, $tipoCampeonato)
@@ -114,7 +92,7 @@ if (!function_exists('organizarArrayPartidas')) {
     function organizarArrayPartidas($campeonatoId, $tipoCampeonato, $quantidadeJogos, $quantidadeJogosIda = null, $quantidadeEliminatorias = null)
     {
         $nomeJogos = [
-            "Rodada Ida", "Rodada Volta", "Oitavas",
+            "Ida", "Volta", "Oitavas",
             "Quartas", "Semifinal", "Final"
         ];
         $arrayJogos = [];
@@ -215,7 +193,6 @@ if (!function_exists('organizarArrayPartidas')) {
                         }
                         $i++;
                         $numeroRestante--;
-                        // dd($contador, $i, $numeroRestante, $arrayJogos, $quantidadeJogos, $quantidadeEliminatorias);
                     }
                     break;
             }
@@ -229,7 +206,7 @@ if (!function_exists('nomearPartidas')) {
     {
         $numeroJogo++;
         return [
-            'nome' => "Jogo $numeroJogo - $nomeJogos",
+            'nome' => "Jogo $numeroJogo - $nomeJogos x",
             'campeonato_id' => $campeonatoId
         ];
     }
@@ -238,24 +215,57 @@ if (!function_exists('nomearPartidas')) {
 if(!function_exists('rodizioTimes')) {
     function rodizioTimes($arrayTimes, $arrayJogos, $tipoCampeonato) {
         $quantidadeTimes = count($arrayTimes);
-        $quantidadeRodadas = $quantidadeTimes - 1;
-        $jogosPorRodada = (int) $quantidadeTimes / 2;
+        if($quantidadeTimes % 2 == 0) $quantidadeRodadas = $quantidadeTimes - 1;
+        else $quantidadeRodadas = $quantidadeTimes;
+        $jogosPorRodada = intdiv($quantidadeTimes, 2);
+        $arrayOriginal = $arrayTimes;
         $indice = 0;
         // Criar opções para os tipos diferentes de campeonato
-        for($i = 0; $i < $quantidadeRodadas; $i++) {
-            $arrayTimes = rotacionarElementosArray($arrayTimes);
-            for($j = 0; $j < $jogosPorRodada; $j++) {
-                $arrayJogos[$indice]['casa'] = $arrayTimes[$j]->id;
-                $arrayJogos[$indice]['adversario'] = $arrayTimes[($quantidadeTimes-1) - $j]->id;
+        if($tipoCampeonato == 1 || $tipoCampeonato == 3) {
+            for($i = 0; $i < $quantidadeRodadas; $i++) {
+                for($j = 0; $j < $jogosPorRodada; $j++) {
+                    $rodada = $i + 1;
+                    $arrayJogos[$indice]['nome'] = str_replace("x", "Rodada $rodada", $arrayJogos[$indice]['nome']);
+                    $arrayJogos[$indice]['casa'] = $arrayTimes[$j]->id;
+                    $arrayJogos[$indice]['adversario'] = $arrayTimes[($quantidadeTimes-1) - $j]->id;
+                    $indice++;
+                }
+                $arrayTimes = rotacionarElementosArray($arrayTimes);
+            }
+        }
+        if($tipoCampeonato == 2 || $tipoCampeonato == 4) {
+            $quantidadeRodadas *= 2;
+            for($i = 0; $i < $quantidadeRodadas; $i++) {
+                for($j = 0; $j < $jogosPorRodada; $j++) {
+                    $rodada = $i+1;
+                    $arrayJogos[$indice]['nome'] = str_replace("x", "- Rodada $rodada", $arrayJogos[$indice]['nome']);
+                    // dd($arrayJogos[$indice]['nome']);
+                    if($i < $quantidadeRodadas/2) {
+                        $arrayJogos[$indice]['casa'] = $arrayTimes[$j]->id;
+                        $arrayJogos[$indice]['adversario'] = $arrayTimes[($quantidadeTimes-1) - $j]->id;
+                    } else {
+                        $arrayJogos[$indice]['casa'] = $arrayTimes[($quantidadeTimes-1) - $j]->id;
+                        $arrayJogos[$indice]['adversario'] = $arrayTimes[$j]->id;
+                    }
+                    $indice++;
+                }
+                if($quantidadeRodadas < $quantidadeRodadas/2) {
+                    $arrayTimes = rotacionarElementosArray($arrayTimes);
+                } else {
+                    $arrayTimes = $arrayOriginal;
+                    $arrayTimes = rotacionarElementosArray($arrayTimes);
+                }
+            }
+        }
+        if($tipoCampeonato > 2) {
+            while($indice < count($arrayJogos)) {
+                $arrayJogos[$indice]['casa'] = null;
+                $arrayJogos[$indice]['adversario'] = null;
+                $arrayJogos[$indice]['nome'] = str_replace("x", "", $arrayJogos[$indice]['nome']);
                 $indice++;
             }
         }
-        while($indice < count($arrayJogos)) {
-            $arrayJogos[$indice]['casa'] = null;
-            $arrayJogos[$indice]['adversario'] = null;
-            $indice++;
-        }
-        dd($arrayTimes, $arrayJogos, $indice);
+        // dd($arrayTimes, $arrayJogos, $indice);
         return $arrayJogos;
     }
 }
@@ -263,11 +273,78 @@ if(!function_exists('rodizioTimes')) {
 if(!function_exists('rotacionarElementosArray')) {
     function rotacionarElementosArray($arrayTimes) {
         $ultimoIndice = count($arrayTimes) - 1;
-        $auxiliar = $arrayTimes[1];
-        for($i = 1; $i < $ultimoIndice; $i++) {
+        if(count($arrayTimes) % 2 == 0) $valorIndice = 1;
+        else $valorIndice = 0;
+        $auxiliar = $arrayTimes[$valorIndice];
+        for($i = $valorIndice; $i < $ultimoIndice; $i++) {
             $arrayTimes[$i] = $arrayTimes[$i + 1];
         }
         $arrayTimes[$ultimoIndice] = $auxiliar;
         return $arrayTimes;
+    }
+}
+
+if(!function_exists('tabelaPontosCorridos')) {
+    function tabelaPontosCorridos($times, $jogos) {
+        $tabelaResultado = [];
+        foreach($times as $time) {
+            $tabelaResultado[$time['id']]['nome'] = $time['nome'];
+            $tabelaResultado[$time['id']]['pontos'] = 0;
+            $tabelaResultado[$time['id']]['partidasJogadas'] = 0;
+            $tabelaResultado[$time['id']]['vitorias'] = 0;
+            $tabelaResultado[$time['id']]['empates'] = 0;
+            $tabelaResultado[$time['id']]['derrotas'] = 0;
+            foreach($jogos as $jogo) {
+                if($jogo['casa'] == $time['id'] || $jogo['adversario'] == $time['id']) {
+                    if($jogo['casa'] == $time['id']) $mando = 'resultadoCasa';
+                    if($jogo['adversario'] == $time['id']) $mando = 'resultadoAdversario';
+                    // $tabelaResultado[$time['id']][] = [
+                    //     "idPartida" => $jogo['id'],
+                    //     "resultado" => $jogo[$mando]
+                    // ];
+                    switch ($jogo[$mando]) {
+                        case 'V':
+                            $tabelaResultado[$time['id']]['vitorias']++;
+                            $tabelaResultado[$time['id']]['partidasJogadas']++;
+                            break;
+                        case 'E':
+                            $tabelaResultado[$time['id']]['empates']++;
+                            $tabelaResultado[$time['id']]['partidasJogadas']++;
+                            break;
+                        case 'D':
+                            $tabelaResultado[$time['id']]['derrotas']++;
+                            $tabelaResultado[$time['id']]['partidasJogadas']++;
+                            break;
+                    }
+                }
+            }
+            $tabelaResultado[$time['id']]['pontos'] = $tabelaResultado[$time['id']]['vitorias'] * 3 + $tabelaResultado[$time['id']]['empates'];
+        }
+        return $tabelaResultado;
+    }
+}
+
+if(!function_exists('ordenarTabelaResultados')) {
+    function ordenarTabelaResultados($arrayTabela) {
+        $resultado = array_orderby($arrayTabela, 'pontos', SORT_DESC, 'vitorias', SORT_DESC, 'empates', SORT_DESC, 'partidasJogadas', SORT_ASC);
+        return $resultado;
+    }
+}
+
+if(!function_exists('array_orderby')) {
+    function array_orderby() {
+        $args = func_get_args();
+        $data = array_shift($args);
+        foreach ($args as $n => $field) {
+            if (is_string($field)) {
+                $tmp = array();
+                foreach ($data as $key => $row)
+                    $tmp[$key] = $row[$field];
+                $args[$n] = $tmp;
+                }
+        }
+        $args[] = &$data;
+        call_user_func_array('array_multisort', $args);
+        return array_pop($args);
     }
 }

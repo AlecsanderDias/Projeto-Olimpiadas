@@ -6,7 +6,7 @@
         <input type="text" id="nome" name="nome" value="{{ $time->nome }}" class="form-control" disabled/>
         <div class="form-control form-control-lg" id="listagem">
         </div>
-        <input id="listaParticipantes" name="listaParticipantes" class="form-control"/>
+        <input id="listaParticipantes" name="listaParticipantes" class="form-control" hidden/>
         <label for="participantes" class="form-label">Equipe:</label>
         <select id="participantes" name="participantes" class="form-select" onchange="adicionarElemento(this)">
             @foreach ($participantes as $participante)

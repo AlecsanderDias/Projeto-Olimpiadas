@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EquipesFormRequest;
 use App\Models\Equipe;
 use App\Models\Participante;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class EquipesController extends Controller
         return view('equipes.create');
     }
 
-    public function store(Request $request) {
+    public function store(EquipesFormRequest $request) {
         Equipe::create($request->all());
         return to_route('equipes.index')->with(['mensagem.sucesso' => "A Equipe ($request->nome) foi adicioada com sucesso!"]);;
     }
@@ -28,7 +29,7 @@ class EquipesController extends Controller
         return view('equipes.edit')->with(['equipe' => $equipe, 'participantes' => $participantes]);
     }
 
-    public function update(Equipe $equipe,Request $request) {
+    public function update(Equipe $equipe, EquipesFormRequest $request) {
         $equipe->fill($request->all())->save();
         Participante::where('equipe_id','=',"$equipe->id")->update(['capitao' => false]);
         Participante::where('id','=',"$equipe->capitao")->update(['capitao' => true]);
